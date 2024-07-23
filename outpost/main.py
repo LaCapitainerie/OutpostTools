@@ -35,7 +35,6 @@ CLIENTS = {
     "L'Oréal SAPMENA": "96EC558258BBA437A1C7E280708C51AB81616BFB84AC930B77352E8B1E973F3A"
 }
 
-# Path where reports will go
 PATH = "/Users/ibouguerra/Documents/Tools/ReportOutscan/Reports/" # /Users/xxx/Desktop/...
 
 # Url used for the api request
@@ -54,14 +53,15 @@ from PIL import Image, ImageTk
 
 from utils import get_image_path
 
-
-def DownloadReport(key:str, i:dict, XID:str, apptoken:str) -> int:
+def DownloadReport(key:str, i:dict, XID:str, apptoken:str, path:str=os.path.normpath(PATH)) -> int:
     """
     ### Execute shell command to download outpost's report file
     """
 
+    print(path)
+
     # Making a constant for the file name based on the file properties
-    OUTPUT_FILE:str = f'{PATH}PCI ASV Scan - {i["date"]} - {i["TARGET"]}.pdf'
+    OUTPUT_FILE:str = f'{os.path.normpath(path)}PCI ASV Scan - {i["date"]} - {i["TARGET"]}.pdf'
 
 
     # Cocher cette maudite case
@@ -122,21 +122,18 @@ def DownloadReport(key:str, i:dict, XID:str, apptoken:str) -> int:
         '-H', 'Accept-Encoding: gzip, deflate, br',
         '-H', 'Accept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
         '--data-urlencode', 'ACTION=DOWNLOADEXPORT',
-        '--data-urlencode', f'KEY={key}', 
+        '--data-urlencode', f'KEY={key}',
         '--data-urlencode', f'APPTOKEN={apptoken}',
         '--output', OUTPUT_FILE
-    ]   
+    ]
 
     # Running curl command to donwload the file
-    subprocess.run(CURL_COMMAND, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
+    subprocess.run(CURL_COMMAND)#, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
 
     # Parsing the file to ensure it download correctly
-    try:
-        os.path.getsize(OUTPUT_FILE)
-    except FileNotFoundError:
-        print(f"Erreur lors du téléchargement du fichier pour la clé {key}.\n")
-        return 1
-    # print(f"Téléchargement du fichier pour la clé {key} avec une taille de {FILE_SIZE} octets réussi.\n")
+    FILE_SIZE = os.path.getsize(OUTPUT_FILE)
+
+    print(f"Téléchargement du fichier pour la clé {key} avec une taille de {FILE_SIZE} octets réussi.\n")
 
     return 0
         
@@ -249,8 +246,11 @@ def main_outpost(*Choice_input:int, apptoken:str="", disable_ui:bool=False) -> i
         dates = [dcreated_set[each] for each in Choice_Report]
         print(f"Filtrage pour les dates du {dates}")
         associations:list = list(filter(lambda x: x['date'] in dates, associations))
+
+    from tkinter import filedialog
+    folder_selected = os.path.normpath(filedialog.askdirectory())
     
-    print(f"Téléchargement de {len((associations))} rapports")
+    print(f"Téléchargement de {len((associations))} rapports vers {folder_selected or PATH} en cours...")
     # Header for the second post request
     HEADERS_SECOND:dict[str, str] = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.5993.70 Safari/537.36',
