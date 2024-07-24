@@ -51,14 +51,12 @@ from time import sleep
 import tkinter as tk
 from PIL import Image, ImageTk
 
-from utils import get_image_path
+from .utils import get_image_path
 
 def DownloadReport(key:str, i:dict, XID:str, apptoken:str, path:str=os.path.normpath(PATH)) -> int:
     """
     ### Execute shell command to download outpost's report file
     """
-
-    print(path)
 
     # Making a constant for the file name based on the file properties
     OUTPUT_FILE:str = f'{os.path.normpath(path)}PCI ASV Scan - {i["date"]} - {i["TARGET"]}.pdf'
@@ -128,7 +126,7 @@ def DownloadReport(key:str, i:dict, XID:str, apptoken:str, path:str=os.path.norm
     ]
 
     # Running curl command to donwload the file
-    subprocess.run(CURL_COMMAND)#, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
+    subprocess.run(CURL_COMMAND, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
 
     # Parsing the file to ensure it download correctly
     FILE_SIZE = os.path.getsize(OUTPUT_FILE)
@@ -303,7 +301,7 @@ def main_outpost(*Choice_input:int, apptoken:str="", disable_ui:bool=False) -> i
 
                 # print(f"Clé extraite avec succès pour XID: {y} : {key}")
                 
-                DownloadReport(key,i,y,apptoken)
+                DownloadReport(key, i, y, apptoken, folder_selected)
                 dl+=1
                 UpdateDL(RapportATelecharger, dl)
                 
@@ -348,7 +346,7 @@ def main() -> int:
     height = 600
     window = tk.Tk()
     window.geometry(f'{width}x{height}')
-    window.title("Outpost24 Reporting Tool")
+    window.title("Outpost24 Reporting Tool v1.3")
     window.resizable(False, False)
     window.iconbitmap(get_image_path("Outpost24-logo.ico"))
 
