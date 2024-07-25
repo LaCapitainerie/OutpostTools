@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+__version__ = "1.5.3"
 
 CNPP_ASCII:str = '''
 //////////////////////////////////////
@@ -59,8 +60,7 @@ def DownloadReport(key:str, i:dict, XID:str, apptoken:str, path:str=os.path.norm
     """
 
     # Making a constant for the file name based on the file properties
-    OUTPUT_FILE:str = f'{os.path.normpath(path)}PCI ASV Scan - {i["date"]} - {i["TARGET"]}.pdf'
-
+    OUTPUT_FILE:str = os.path.normpath(f'{path}/PCI ASV Scan - {i["date"]} - {i["TARGET"]}.pdf')
 
     # Cocher cette maudite case
     CROSS_HEADER:dict = {
@@ -129,9 +129,7 @@ def DownloadReport(key:str, i:dict, XID:str, apptoken:str, path:str=os.path.norm
     subprocess.run(CURL_COMMAND, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
 
     # Parsing the file to ensure it download correctly
-    FILE_SIZE = os.path.getsize(OUTPUT_FILE)
-
-    print(f"Téléchargement du fichier pour la clé {key} avec une taille de {FILE_SIZE} octets réussi.\n")
+    os.path.getsize(OUTPUT_FILE)
 
     return 0
         
@@ -346,7 +344,7 @@ def main() -> int:
     height = 600
     window = tk.Tk()
     window.geometry(f'{width}x{height}')
-    window.title("Outpost24 Reporting Tool v1.3")
+    window.title(f"Outpost24 Reporting Tool v{__version__}")
     window.resizable(False, False)
     window.iconbitmap(get_image_path("Outpost24-logo.ico"))
 
@@ -421,6 +419,7 @@ def main() -> int:
         def NumberOfDownload() -> int:
             count = sum([dates[date] for date, var in checkboxes if var.get() == 1])
             download_button['text'] = f"Télécharger {count} fichier{'s' if count > 1 else ''}"
+            download_button['state'] = tk.NORMAL if count > 0 else tk.DISABLED
             return 0
 
         # Create new checkboxes
